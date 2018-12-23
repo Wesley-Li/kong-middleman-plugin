@@ -1,7 +1,8 @@
-local responses = require "kong.tools.responses"
+#local responses = require "kong.tools.responses"
 local JSON = require "kong.plugins.middleman.json"
 local cjson = require "cjson"
 local url = require "socket.url"
+local responses = kong.response
 
 local string_format = string.format
 
@@ -94,6 +95,12 @@ function _M.execute(conf)
   if err then
     ngx.log(ngx.ERR, name .. "failed to read body " .. host .. ":" .. tostring(port) .. ": ", err)
     return
+  end
+
+  if status_code == 200 then
+    return
+  else
+    return responses.exit(403, "Forbidden")
   end
 
   ok, err = sock:setkeepalive(conf.keepalive)
